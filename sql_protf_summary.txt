@@ -1,0 +1,660 @@
+WITH BASE AS (
+--select * from loan portfolio on a particular date),
+
+
+----1.TOTAL
+TOTAL AS (
+SELECT 'XXX' AS "N1",
+       'Total Portfolio' "N",
+       SUM(BAL_EQV)  "TOTAL"
+FROM BASE 
+WHERE xxx IS NULL AND xxx IS NULL OR xxx LIKE 'xxx' OR (xxx LIKE 'xxx' AND CUSTOMER = xxx)
+UNION
+SELECT 'XXX' AS "N1",
+       'Balance Portfolio' "N",
+       SUM(BAL_EQV)  "TOTAL"
+FROM BASE 
+WHERE xxx IS NULL  AND RES_RISK != 5 AND (xxx IS NULL OR xxx LIKE 'xxx' OR (xxx LIKE 'xxx' AND CUSTOMER = xxx))
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "TOTAL"
+FROM BASE 
+WHERE xxx IS NULL AND xxx IS NULL OR xxx LIKE 'xxx' OR (xxx LIKE 'xxx' AND CUSTOMER = xxx)  group by DPD_G
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "TOTAL"
+FROM BASE 
+WHERE xxx IS NULL AND (xxx IS NULL OR xxx LIKE 'xxx' OR (xxx LIKE 'xxx' AND CUSTOMER = xxx)) and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+       'COUNT' AS "N1",
+       stage3,
+       count(BAL_EQV)  "TOTAL"
+FROM BASE 
+WHERE xxx IS NULL AND (xxx IS NULL OR xxx LIKE 'xxx' OR (xxx LIKE 'xxx' AND CUSTOMER = xxx))  and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3),
+
+
+--2. RETAIL
+RETAIL AS (
+SELECT 'XXX' AS "N1", 
+'Total Portfolio'  "N",
+       SUM(BAL_EQV)  "RETAIL"
+FROM BASE 
+WHERE xxx IS NULL AND 'customer_type' = '''type_x'' 
+UNION
+SELECT 'XXX' AS "N1",
+ 'Balance Portfolio' "N",
+       SUM(BAL_EQV)  "RETAIL"
+FROM BASE 
+WHERE xxx IS NULL  AND RES_RISK != 5 AND 'customer_type' = '''type_x'' 
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "RETAIL"
+FROM BASE 
+WHERE xxx IS NULL AND 'customer_type' = '''type_x'' group by DPD_G
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "RETAIL"
+FROM BASE 
+WHERE xxx IS NULL AND 'customer_type' = '''type_x'' and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+       'COUNT' AS "N1",
+       stage3,
+       COUNT(BAL_EQV)  "RETAIL"
+FROM BASE 
+WHERE xxx IS NULL AND 'customer_type' = '''type_x'' and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+),
+
+
+--2.1.'prod_1'
+'prod_1' AS (
+SELECT 'XXX' AS "N1",
+       'Total Portfolio' "N",
+       SUM(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL 
+UNION
+SELECT 'XXX' AS "N1",
+       'Balance Portfolio' "N",
+       SUM(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND RES_RISK != 5 
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL  group by DPD_G
+UNION
+SELECT 'XXX' AS "N1", 
+'Q Total Portfolio' "N",
+       COUNT(BAL_EQV)  "Value-Mortgage"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL 
+UNION
+SELECT 'XXX' AS "N1", 
+'Q OFF -Balance Portfolio' "N",
+       COUNT(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND RES_RISK = 5 
+UNION
+SELECT 'XXX' AS "N1",
+       'Q 90+' "N",
+       COUNT(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL  AND DPD_G LIKE '5. 90+' group by DPD_G
+UNION-----------------------------------------------------------------------------------------------
+SELECT 'XXX' AS "N1", 
+'AMD - Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'AMD' 
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG LOAN' "N",
+       ROUND(AVG(BAL_EQV),0)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG DURATION' "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv)/12,2)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5
+UNION-----------------------------------------------------------------------------------------------
+SELECT 'XXX' AS "N1",
+'USD - Total Portfolio' "N",
+       SUM(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'USD' 
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG LOAN'  "N",
+       round(AVG(BAL_EQV),0)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv)/12,2)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL  and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+       'COUNT' AS "N1",
+       STAGE3,
+       COUNT(BAL_EQV)  "'prod_1'"
+FROM BASE 
+WHERE PROD LIKE ''prod_1'' AND xxx IS NULL  and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+),
+
+--2.2.'prod_2'
+'prod_2' AS (
+SELECT 'XXX' AS "N1",
+'Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL 
+UNION
+SELECT 'XXX' AS "N1",
+'Balance Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL AND RES_RISK != 5 
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL  group by DPD_G
+UNION
+SELECT 'XXX' AS "N1",
+'Q Total Portfolio'  "N",
+       COUNT(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL 
+UNION
+SELECT 'XXX' AS "N1",
+'Q OFF -Balance Portfolio'  "N",
+       COUNT(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL AND RES_RISK = 5 
+
+UNION-----------------------------------------------------------------------------------------------
+
+SELECT 'XXX' AS "N1",
+'AVG LOAN'  "N",
+       ROUND(AVG(BAL_EQV),0)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv),2)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL AND RES_RISK != 5 
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+       'COUNT' AS "N1",
+       STAGE3,
+       COUNT(BAL_EQV)  "'prod_2'"
+FROM BASE 
+WHERE PROD LIKE ''prod_2'' AND xxx IS NULL and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+),
+
+--2.3.'prod_3'
+'prod_3' AS (
+SELECT 'XXX' AS "N1",
+'Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x 
+UNION
+SELECT 'XXX' AS "N1",
+'Balance Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x  GROUP BY DPD_G
+UNION
+SELECT 'XXX' AS "N1",
+'Q Total Portfolio'  "N",
+       COUNT(BAL_EQV)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x
+
+UNION-----------------------------------------------------------------------------------------------
+
+SELECT 'XXX' AS "N1",
+'AVG LOAN'  "N",
+       ROUND(AVG(BAL_EQV),0)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv),2)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x  and  (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+       'COUNT' AS "N1",
+        STAGE3,
+       COUNT(BAL_EQV)  "'prod_3'"
+FROM BASE 
+WHERE DESTINATION_ID = x  and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+
+),
+
+--2.4.prod_4
+'prod_4' AS (
+SELECT 'XXX' AS "N1",
+'Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x
+UNION
+SELECT 'XXX' AS "N1",
+'Balance Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_4'" 
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x  GROUP BY DPD_G
+UNION
+SELECT 'XXX' AS "N1",
+'Q Total Portfolio'  "N",
+       COUNT(BAL_EQV)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x
+
+UNION-----------------------------------------------------------------------------------------------
+
+SELECT 'XXX' AS "N1",
+'AVG LOAN'  "N",
+       ROUND(AVG(BAL_EQV),0)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv),2)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 'XXX' AS "N1",
+'AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x AND RES_RISK != 5
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x  and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+       'COUNT' AS "N1",
+        STAGE3,
+       COUNT(BAL_EQV)  "'prod_4'"
+FROM BASE 
+WHERE DESTINATION_ID = x  and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+),
+
+--2.5.prod_5
+'prod_5' AS (
+SELECT 'XXX' AS "N1",
+'Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'Balance Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr) group by DPD_G
+UNION
+SELECT 'XXX' AS "N1",
+'Q Total Portfolio'  "N",
+       COUNT(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'Q OFF -Balance Portfolio' "N",
+       COUNT(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND RES_RISK = 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+       'Q 90+'  "N",
+       COUNT(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND DPD_G LIKE '5. 90+' AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr) group by DPD_G
+UNION-----------------------------------------------------------------------------------------------
+SELECT 'XXX' AS "N1",
+'AMD - Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG LOAN'  "N",
+       ROUND(AVG(BAL_EQV),0)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv)/12,2)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION-----------------------------------------------------------------------------------------------
+SELECT 'XXX' AS "N1",
+'USD - Total Portfolio'  "N",
+       SUM(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG LOAN'  "N",
+       round(AVG(BAL_EQV),0)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv)/12,2)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5 AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr) and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+        'COUNT' AS "N1",
+        STAGE3,
+       COUNT(BAL_EQV)  "'prod_5'"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND CONTRACT IN (SELECT CONTRACT FROM prod_6_contr) and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+),
+
+----2.6.prod_6
+'prod_6' AS (
+SELECT 'XXX' AS "N1",
+'Total Portfolio'  "N",
+       SUM(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'Balance Portfolio'  "N",
+       SUM(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+       DPD_G,
+       SUM(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr) group by DPD_G
+UNION
+SELECT 'XXX' AS "N1",
+'Q Total Portfolio'  "N",
+       COUNT(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'Q OFF -Balance Portfolio'  "N",
+       COUNT(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND RES_RISK = 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+       'Q 90+'  "N",
+       COUNT(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND DPD_G LIKE '5. 90+' AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr) group by DPD_G
+UNION-----------------------------------------------------------------------------------------------
+SELECT 'XXX' AS "N1",
+'AMD - Total Portfolio'  "N",
+       SUM(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG LOAN'  "N",
+       ROUND(AVG(BAL_EQV),0)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv)/12,2)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'AMD - AVG INTRATE'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'AMD' AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION-----------------------------------------------------------------------------------------------
+SELECT 'XXX' AS "N1",
+'USD - Total Portfolio'  "N",
+       SUM(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG LOAN'  "N",
+       round(AVG(BAL_EQV),0)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG DURATION'  "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*((TO_DATE(MATDATE,'DD/MM/YYYY')-TO_DATE(OPENDATE,'DD/MM/YYYY'))/30))/SUM(CONTAMOUNT_Eqv)/12,2)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 'XXX' AS "N1",
+'USD - AVG INTRATE' "N",
+       ROUND(SUM(CONTAMOUNT_Eqv*INT_RATE)/SUM(CONTAMOUNT_Eqv),2)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL AND CURRENCY LIKE 'USD' AND RES_RISK != 5 AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)
+UNION
+SELECT 
+       'VOLUME' AS "N1",
+       stage3,
+       SUM(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr)and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+UNION
+SELECT 
+        'COUNT' AS "N1",
+        STAGE3,
+       COUNT(BAL_EQV)  "prod_6"
+FROM BASE 
+WHERE PROD LIKE 'prod_6' AND xxx IS NULL  AND CONTRACT NOT IN (SELECT CONTRACT FROM prod_6_contr) and (STAGE3 is not null OR stage3 <> 'xxx') group by stage3
+)
+
+SELECT ABC.N1,
+       abc.N,
+       TOTAL.TOTAL,
+       RETAIL.RETAIL,
+       'prod_1'.'prod_1',
+       'prod_2'.'prod_2',
+       'prod_3'.'prod_3',
+       'prod_4'.'prod_4',
+       'prod_5'.'prod_5',
+       'prod_6'.prod_6
+
+
+FROM         
+        (SELECT 'XXX' AS "N1",'Total Portfolio'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'Balance Portfolio'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'1. 0'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'2. 1-29'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'3. 30-59'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'4. 60-89'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'5. 90+'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'Q 90+'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'Q OFF -Balance Portfolio'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'Q Total Portfolio'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AMD - AVG DURATION'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AMD - AVG INTRATE'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AMD - AVG LOAN'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AMD - Total Portfolio'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'USD - AVG DURATION'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'USD - AVG INTRATE'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'USD - AVG LOAN'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'USD - Total Portfolio'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AVG DURATION'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AVG INTRATE'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AVG LOAN'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'ISSUE'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'MEDIAN LOANS'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'MODE LOANS'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'MEDIAN LIMITS'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'MODE LIMITS'AS "N" FROM BASE
+        UNION
+        SELECT 'XXX' AS "N1",'AVG LIMIT' AS "N" FROM BASE
+        UNION
+        SELECT 'VOLUME' AS "N1",'Stage 1' AS "N" FROM BASE
+        UNION
+        SELECT 'VOLUME' AS "N1",'Stage 2' AS "N" FROM BASE
+        UNION
+        SELECT 'VOLUME' AS "N1",'Stage 3' AS "N" FROM BASE
+        UNION
+        SELECT 'VOLUME' AS "N1",'POCI' AS "N" FROM BASE
+        UNION
+        SELECT 'COUNT' AS "N1",'Stage 1' AS "N" FROM BASE
+        UNION
+        SELECT 'COUNT' AS "N1",'Stage 2' AS "N" FROM BASE
+        UNION
+        SELECT 'COUNT' AS "N1",'Stage 3' AS "N" FROM BASE
+        UNION
+        SELECT 'COUNT' AS "N1",'POCI' AS "N" FROM BASE
+        ) abc
+
+LEFT JOIN TOTAL ON abc.N = TOTAL.N and abc.N1 = TOTAL.N1
+LEFT JOIN RETAIL ON abc.N = RETAIL.N and abc.N1 = RETAIL.N1
+LEFT JOIN 'prod_1' ON abc.N = 'prod_1'.N and abc.N1 = 'prod_1'.N1
+LEFT JOIN 'prod_2' ON abc.N = 'prod_2'.N and abc.N1 = 'prod_2'.N1
+LEFT JOIN 'prod_3' ON abc.N = 'prod_3'.N and abc.N1 = 'prod_3'.N1
+LEFT JOIN 'prod_4' ON abc.N= 'prod_4'.N and abc.N1 = 'prod_4'.N1
+LEFT JOIN 'prod_5' ON abc.N = 'prod_5'.N and abc.N1 = 'prod_5'.N1
+LEFT JOIN 'prod_6' ON abc.N = 'prod_6'.N and abc.N1 = 'prod_6'.N1
