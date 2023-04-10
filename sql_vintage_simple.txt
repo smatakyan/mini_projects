@@ -1,0 +1,42 @@
+
+WITH BASE AS (
+				--select * from portfolio--
+				where d.destinationid IN (<destination,number,xxx>)  --CHANGE DESTINATION
+),
+
+NPL as (
+select                 
+					   SUM(base.Bal_eqv) debt,
+					   EOMONTH(base.opendate) OPENDATE,
+					   DATEDIFF(month, base.opendate,base.dt) months_passed
+from base
+where    base.dt >=<back_data,date,'2016-01-01'>               --CHANGE DATE
+      and base.dt = EOMONTH(base.DT)
+	  and DATEDIFF(month, base.opendate,base.dt)>0
+	  and base.DPD_G like '5. 90+'
+GROUP BY EOMONTH(base.opendate),DATEDIFF(month, base.opendate,base.dt)),
+
+ISSUE AS (
+SELECT 
+		EOMONTH(d.opendate) openmonth,
+		SUM(d.contamount * rates.rate ) total_volume
+
+FROM [ContractsAll] d
+left join [Rates] rates              on d.Currency = rates.Currency
+				and  d.OpenDate = rates.rtdate
+
+WHERE  d.destinationid IN (<destination,number,xxx>)               --CHANGE DESTINATION
+GROUP BY EOMONTH(d.opendate))
+
+
+SELECT  
+		NPL.OPENDATE,
+		NPL.MONTHS_PASSED,
+		ISSUE.TOTAL_VOLUME,
+		NPL.DEBT,
+		NPL.DEBT/ISSUE.TOTAL_VOLUME RATION
+FROM NPL
+LEFT JOIN ISSUE ON NPL.OPENDATE = ISSUE.OPENMONTH
+
+
+
