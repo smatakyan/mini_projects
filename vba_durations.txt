@@ -1,0 +1,67 @@
+Sub WeightedDuration()
+
+Dim Duration As Long
+Dim Max_Dur As Long
+Dim LastColumn As Long
+Dim LastRowPr As Long
+Dim LastRowDur As Long
+Dim SourceRange As Range
+Dim fillrange As Range
+Dim i As Long
+Dim t As Long
+Dim j As Long
+Dim p As Long
+Dim timeline As Range
+Dim product As Range
+
+'Dim SourceRange1 As Range
+'Dim fillrange1 As Range
+
+
+
+Max_Dur = WorksheetFunction.Max(Worksheets("calc").Range("D:D"))
+
+Worksheets("calc").Range("P6") = 0
+Worksheets("calc").Range("Q6") = 1
+
+Set SourceRange = Worksheets("calc").Range("P6:Q6")
+
+Set fillrange = Worksheets("calc").Range(Cells(6, 16), Cells(6, Max_Dur + 16))
+SourceRange.AutoFill Destination:=fillrange
+
+LastRowPr = Cells(Rows.Count, 1).End(xlUp).Row
+
+For p = 1 To LastRowPr - 1
+       Cells(p + 6, 15).Value = Cells(p + 1, 1).Value
+Next p
+
+LastColumn = Cells(6, Columns.Count).End(xlToLeft).Column
+
+
+LastRowDur = Cells(Rows.Count, 15).End(xlUp).Row
+
+
+
+For i = Cells(7, 15).Value To LastRowDur
+                       For t = Cells(6, 17).Value To Cells(i + 1, 4).Value
+                       
+                                         Cells(6 + i, 16 + t) = -PPmt(Cells(i + 1, 6) / 12, t, Cells(i + 1, 4), Cells(i + 1, 5))
+                       Next t
+Next i
+
+'Calculating sumproduct
+
+Set timeline = Range(Cells(6, 17), Cells(6, LastColumn))
+Set product = Range(Cells(7, 17), Cells(7, LastColumn))
+
+For j = 7 To LastRowDur
+        Cells(j, 14) = Application.WorksheetFunction.RoundDown(((Application.WorksheetFunction.SumProduct(timeline, product)) / Cells(j - 5, 5)) * 30, 0)
+        Set product = product.Offset(1, 0)
+Next j
+        
+
+
+End Sub
+
+
+

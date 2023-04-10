@@ -1,0 +1,68 @@
+Private Sub Worksheet_Change(ByVal Target As Range)
+        Application.EnableEvents = True
+        
+        Dim ProductR As Range
+        Dim InputR As Range
+        Dim IRRr As Range
+        Dim IRRc As Range
+        Dim LastColumn As Long
+        Dim i As Integer
+        Dim j As Integer
+        Dim Control As Range
+        
+        
+        Dim ProductTerms As Range
+        Dim ChangedProduct As Range
+        'Not used: Dim OutputR As Range
+            
+        'Finding total number of products for iteration
+         LastColumn = Cells(3, Columns.Count).End(xlToLeft).Column - 5
+
+        'Setting selection range
+        'Setting input range
+         Set ProductR = Range("F2:F28")
+         Set InputR = Range("D2:D28")
+    
+    
+         Set IRRr = Range("F30")
+         Set IRRc = Range("F31")
+      
+        'Setting changing range
+        Set ProductTerms = Range("F2:BC28")
+        'Not used: Set OutputR = Range("F30:BC31")
+        
+        'Defining event
+        If Not Application.Intersect(ProductTerms, Range(Target.Address)) Is Nothing Then
+           
+           'OutputR.Interior.ColorIndex = 2
+        
+           Set ChangedProduct = ProductR.Offset(0, Target.Column - 5 - 1)
+           
+           InputR.Value = ChangedProduct.Value
+        
+           IRRr.Offset(0, Target.Column - 5 - 1).Value = Range("D30").Value
+           IRRc.Offset(0, Target.Column - 5 - 1).Value = Range("D31").Value
+           
+           Range("D3:D28").Select
+           'Selection.ClearContents
+           
+           
+           
+           'Coloring IRR values, which haven't met the condition and uncoloring
+           Set Control = Range("E30")
+           For j = 1 To LastColumn
+               If Control.Offset(0, j).Value > Range("E30").Value Then
+                  Control.Offset(0, j).Interior.ColorIndex = 22
+               Else
+                  Control.Offset(0, j).Interior.ColorIndex = 2
+              
+               End If
+           Next j
+    
+        
+   
+        End If
+        
+        Target.Offset(1, 0).Select
+End Sub
+

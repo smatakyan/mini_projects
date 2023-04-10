@@ -1,0 +1,115 @@
+Sub summarise_portfolio():
+
+'This sub:
+
+   '1. Adds portfolio quality mark based on the days due and names the column NPL.
+   '2. Creates a sheet named "Results".
+   '3. Collects the ranges of names and NPL marks from other sheets to get all possible combinations.
+   '4. Gets unique "product - quality" combinations.
+   '5. Gets the names of the sheets as date series.
+   '6. Gets the total volume of each unique "product-quality" combination using sumifs.
+  
+   
+   Dim w As Integer
+   Dim v As Integer
+   Dim i As Integer
+   Dim j As Integer
+   Dim a As Integer
+   Dim c As Integer
+   Dim p As Integer
+   Dim s As Integer
+   Dim last_row  As Long
+   Dim last_row1 As Long
+   Dim last_row3 As Long
+   Dim start     As Long
+   Dim finish    As Long
+   
+ 'Create new column name
+ 
+   w = Application.Sheets.Count
+   For i = 1 To w:
+       Application.Sheets(i).Range("G1") = "NPL"
+   Next i
+   
+ 'Create new column
+  
+   For i = 1 To w:
+       last_row = Application.Sheets(i).Cells(Rows.Count, 1).End(xlUp).Row
+       
+       For j = 2 To last_row:
+           If Application.Sheets(i).Cells(j, 6) = 0 Then
+              Application.Sheets(i).Cells(j, 7) = "Normal"
+           ElseIf Application.Sheets(i).Cells(j, 6) > 90 Then
+              Application.Sheets(i).Cells(j, 7) = "90+"
+           Else: Application.Sheets(i).Cells(j, 7) = "1+"
+       End If
+       Next j
+   Next i
+   
+ 'Create new sheet
+   
+   Set ws = ActiveWorkbook.Sheets.Add(before:=ThisWorkbook.Sheets(1))
+       ws.Name = "Results"
+   
+   
+ 'Bring all the products and NPL features to the new sheet from the nearest sheet
+ 
+       last_row1 = Application.Sheets(2).Cells(Rows.Count, 1).End(xlUp).Row
+       
+        Application.Sheets(1).Range(Application.Sheets(1).Cells(1, 1), Application.Sheets(1).Cells(last_row1, 1)).Value = Application.Sheets(2).Range(Application.Sheets(2).Cells(1, 1), Application.Sheets(2).Cells(last_row1, 1)).Value
+        Application.Sheets(1).Range(Application.Sheets(1).Cells(1, 2), Application.Sheets(1).Cells(last_row1, 2)).Value = Application.Sheets(2).Range(Application.Sheets(2).Cells(1, 7), Application.Sheets(2).Cells(last_row1, 7)).Value
+       
+       
+       'For j = 1 To last_row1:
+           'Application.Sheets(1).Cells(j, 1) = Application.Sheets(2).Cells(j, 1)
+           'Application.Sheets(1).Cells(j, 2) = Application.Sheets(2).Cells(j, 7)
+       'Next j
+ 
+ 'Bring all the products and NPL features to the new sheet from the nearest sheets and put them under each other
+ 
+    v = Application.Sheets.Count
+    
+    
+    For a = 3 To v:
+       
+       start = Application.Sheets(1).Cells(Rows.Count, 1).End(xlUp).Row
+       finish = Application.Sheets(a).Cells(Rows.Count, 1).End(xlUp).Row
+       
+       
+       
+        Application.Sheets(1).Range(Application.Sheets(1).Cells(start + 1, 1), Application.Sheets(1).Cells(start + finish - 1, 1)).Value = Application.Sheets(a).Range(Application.Sheets(a).Cells(2, 1), Application.Sheets(a).Cells(finish, 1)).Value
+        Application.Sheets(1).Range(Application.Sheets(1).Cells(start + 1, 2), Application.Sheets(1).Cells(start + finish - 1, 2)).Value = Application.Sheets(a).Range(Application.Sheets(a).Cells(2, 7), Application.Sheets(a).Cells(finish, 7)).Value
+          'For j = 2 To finish:
+              'Application.Sheets(1).Cells(Start + j - 1, 1).Value = Application.Sheets(a).Cells(j, 1)
+              'Application.Sheets(1).Cells(Start + j - 1, 2).Value = Application.Sheets(a).Cells(j, 7)
+          'Next j
+     'Start = Application.Sheets(1).Cells(Rows.Count, 1).End(xlUp).Row
+     Next a
+ 
+ 'Get all the unique "Product - NPL feature" combinations from the all sheets
+ 
+ Application.Sheets(1).Range("A:B").RemoveDuplicates Columns:=Array(1, 2), Header:=xlYes
+ 
+ 'Get dates, which are the names of the sheets
+ 
+ For c = 2 To v:
+         Application.Sheets(1).Cells(1, c + 1).Value = Application.Sheets(c).Name
+ Next c
+
+ 'Get the portfolio volume for each date
+ 
+  last_row3 = Application.Sheets(1).Cells(Rows.Count, 1).End(xlUp).Row
+ 
+ 
+ For p = 2 To last_row3:
+   For s = 2 To v:
+       If Application.Sheets(s).Name = Application.Sheets(1).Cells(1, s + 1) Then Application.Sheets(1).Cells(p, s + 1) = Application.WorksheetFunction.SumIfs(Application.Sheets(s).Range("E:E"), Application.Sheets(s).Range("A:A"), Application.Sheets(1).Cells(p, 1), Application.Sheets(s).Range("g:g"), Application.Sheets(1).Cells(p, 2))
+   Next s
+ Next p
+
+Application.Sheets(1).Range("A1").CurrentRegion.Sort Key1:=Range("A1"), Order1:=xlAscending, Header:=xlYes
+Application.Sheets(1).Range("A:B").Font.Bold = True
+Application.Sheets(1).Range("A1:XAB1").Font.Bold = True
+
+
+End Sub
