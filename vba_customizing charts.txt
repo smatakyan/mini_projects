@@ -1,0 +1,299 @@
+Private Sub Worksheet_Change(ByVal Target As Range)    'source: written by me
+
+Application.EnableEvents = True
+
+Dim DB As Range
+
+Set DB = ThisWorkbook.Worksheets("database").Range("E1:J33")
+
+If Not Application.Intersect(DB, Range(Target.Address)) Is Nothing Then
+'MsgBox "works"
+Call ThisWorkbook.Worksheets("summary").AdjustVerticalAxis
+Call ThisWorkbook.Worksheets("summary").AdjustPies
+End If
+
+End Sub
+
+------------------------------------------------
+Sub AdjustVerticalAxis()  'Source fo the main part of the code: www.TheSpreadsheetGuru.com
+'PURPOSE: Adjust Y-Axis according to Min/Max of Chart Data 
+
+ 
+Dim cht As ChartObject
+Dim srs As Series
+Dim FirstTime  As Boolean
+Dim MaxNumber As Double
+Dim MinNumber As Double
+Dim MaxChartNumber As Double
+Dim MinChartNumber As Double
+Dim Padding As Double
+ 
+'Input Padding on Top of Min/Max Numbers (Percentage)
+  Padding = 0.2  'Number between 0-1
+ 
+'Optimize Code
+  Application.ScreenUpdating = False
+  
+'Loop Through Each Chart On ActiveSheet
+For Each cht In ActiveWorkbook.Worksheets("summary").ChartObjects
+    If cht.Name = "Chart 5" Or cht.Name = "Chart 8" Then
+       ActiveWorkbook.Worksheets("summary").Range("A1").Value = 1
+    Else
+    'First Time Looking at This Chart?
+      FirstTime = True
+      
+    'Determine Chart's Overall Max/Min From Connected Data Source
+      For Each srs In cht.Chart.SeriesCollection
+        'Determine Maximum value in Series
+          MaxNumber = Round(Application.WorksheetFunction.Max(srs.Values), 4)
+
+        'Store value if currently the overall Maximum Value
+          If FirstTime = True Then
+            MaxChartNumber = MaxNumber
+          ElseIf MaxNumber >= MaxChartNumber Then
+            MaxChartNumber = MaxNumber
+          End If
+        
+        'Determine Minimum value in Series (exclude zeroes)
+          MinNumber = Round(Application.WorksheetFunction.Min(srs.Values), 4)
+          
+        'Store value if currently the overall Minimum Value
+          If FirstTime = True Then
+            MinChartNumber = MinNumber
+          ElseIf MinNumber <= MinChartNumber Then
+            MinChartNumber = MinNumber
+          End If
+        
+        'First Time Looking at This Chart?
+          FirstTime = False
+      Next srs
+
+'customized by myself for specific values
+    'Rescale Y-Axis
+      If MinChartNumber >= 0 Then
+         cht.Chart.Axes(xlValue).MinimumScale = 0
+      ElseIf MinChartNumber < 0 Then
+         If MinChartNumber <= -1 Then
+            cht.Chart.Axes(xlValue).MinimumScale = MinChartNumber * (1 + Padding)
+         ElseIf 0 > MinChartNumber > -1 Then
+            cht.Chart.Axes(xlValue).MinimumScale = MinChartNumber * (1 + Padding)
+         End If
+     End If
+     
+     If MaxChartNumber <= 0 Then
+        cht.Chart.Axes(xlValue).MaximumScale = 0
+     ElseIf MaxChartNumber > 0 Then
+        If MaxChartNumber > 1 Then
+            cht.Chart.Axes(xlValue).MaximumScale = MaxChartNumber * (1 + Padding)
+         ElseIf 0 < MaxChartNumber < 1 Then
+            cht.Chart.Axes(xlValue).MaximumScale = MaxChartNumber * (1 + Padding)
+         End If
+     End If
+   End If
+   'MsgBox "min = " & MinChartNumber & "max = " & MaxChartNumber
+Next cht
+ 
+'Optimize Code
+  Application.ScreenUpdating = True
+ 
+End Sub
+-------------------------------
+Sub AdjustPies()  'source: written by me
+
+For Each cht In ActiveWorkbook.Worksheets("summary").ChartObjects
+    If cht.Name = "Chart 5" Then
+        If ActiveWorkbook.Worksheets("database").Range("G5").Value > ActiveWorkbook.Worksheets("database").Range("E5").Value Or ActiveWorkbook.Worksheets("database").Range("G5").Value = ActiveWorkbook.Worksheets("database").Range("E5").Value Then
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1).Values = "=database!$E$5:$G$5"
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1).XValues = "=database!$E$6:$G$6"
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1).DataLabels.ShowCategoryName = True
+           'ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.Rotation = 0
+           Set ser = ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1)
+           ' loops through all the points and sets the colors of the slices
+           For j = 1 To ser.Points.Count
+                
+                'ser.Points(1).Format.Fill.rotate = 30
+                ser.Points(1).Format.Fill.ForeColor.RGB = RGB(255, 127, 0)
+                ser.Points(1).Format.Line.Visible = False
+                ser.Points(1).DataLabel.Font.ColorIndex = 56
+                ser.Points(1).DataLabel.Font.Size = 36
+                ser.Points(1).Format.Fill.Transparency = 0
+                ser.Points(1).DataLabel.Position = xlLabelPositionBestFit
+                ser.Points(1).DataLabel.NumberFormat = "##.##;##.##"
+                'ser.Points(1).Format.Fill.OneColorGradient Style:=msoGradientDiagonalUp, Variant:=2, Degree:=0.45
+                
+                ser.Points(2).Format.Fill.ForeColor.RGB = RGB(251, 251, 251)
+                ser.Points(2).Format.Fill.Transparency = 0
+                ser.Points(2).Format.Line.Visible = True
+                ser.Points(2).Format.Line.ForeColor.RGB = RGB(0, 128, 0)
+                ser.Points(2).Format.Line.Weight = 5
+                ser.Points(2).DataLabel.Font.Size = 36
+                ser.Points(2).DataLabel.Font.ColorIndex = 10
+                ser.Points(2).DataLabel.NumberFormat = "+ ##.##;- ##.##"
+                ser.Points(2).DataLabel.Position = xlLabelPositionBestFit
+                
+                ser.Points(3).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                ser.Points(3).DataLabel.Font.ColorIndex = 56
+                ser.Points(3).Format.Fill.Transparency = 0.8
+                ser.Points(3).DataLabel.Font.Size = 36
+                ser.Points(3).DataLabel.Position = xlLabelPositionBestFit
+                ser.Points(3).DataLabel.NumberFormat = "##.##;##.##"
+
+            
+            Next j
+                           
+        ElseIf ActiveWorkbook.Worksheets("database").Range("G5").Value < ActiveWorkbook.Worksheets("database").Range("E5").Value Then
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1).Values = "=database!$e$7:$g$7"
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1).XValues = "=database!$e$8:$g$8"
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1).DataLabels.ShowCategoryName = True
+           'ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.Rotation = 0
+           Set ser = ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.SeriesCollection(1)
+           ' loops through all the points and sets the colors of the slices
+           For j = 1 To ser.Points.Count
+                
+                ser.Points(2).Format.Fill.ForeColor.RGB = RGB(251, 251, 251)
+                ser.Points(2).Format.Fill.Transparency = 0
+                ser.Points(2).Format.Line.Visible = True
+                ser.Points(2).Format.Line.ForeColor.RGB = RGB(255, 0, 0)
+                ser.Points(2).Format.Line.Weight = 5
+                ser.Points(2).DataLabel.Font.Size = 36
+                ser.Points(2).DataLabel.Font.ColorIndex = 3
+                ser.Points(2).DataLabel.NumberFormat = "+ ##.##;- ##.##"
+                ser.Points(2).DataLabel.Position = xlLabelPositionBestFit
+                
+                ser.Points(3).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                ser.Points(3).DataLabel.Font.Size = 36
+                ser.Points(3).DataLabel.Font.ColorIndex = 56
+                ser.Points(3).Format.Fill.Transparency = 0.8
+                ser.Points(3).Format.Line.Visible = False
+                ser.Points(3).DataLabel.Position = xlLabelPositionBestFit
+                ser.Points(3).DataLabel.NumberFormat = "##.##;##.##"
+
+                ser.Points(1).Format.Fill.ForeColor.RGB = RGB(255, 127, 0)
+                ser.Points(1).Format.Fill.Transparency = 0
+                ser.Points(1).DataLabel.Font.ColorIndex = 56
+                ser.Points(1).Format.Line.Visible = False
+                ser.Points(1).DataLabel.Position = xlLabelPositionBestFit
+                ser.Points(1).DataLabel.Font.Size = 36
+                ser.Points(1).DataLabel.NumberFormat = "##.##;##.##"
+           Next j
+        End If
+    ElseIf cht.Name = "Chart 8" Then
+    
+        If ActiveWorkbook.Worksheets("database").Range("E20").Value < 0 Then
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).Values = "=database!$E$20:$G$20"
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).XValues = "=database!$E$21:$G$21"
+           ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).DataLabels.ShowCategoryName = True
+           'ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.Rotation = 270
+           Set ser = ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1)
+           ' loops through all the points and sets the colors of the slices
+           For j = 1 To ser.Points.Count
+                
+                'ser.Points(1).Format.Fill.rotate = 30
+                ser.Points(1).Format.Fill.ForeColor.RGB = RGB(255, 0, 0)
+                ser.Points(1).Format.Line.Visible = True
+                ser.Points(1).Format.Line.ForeColor.RGB = RGB(255, 0, 0)
+                ser.Points(1).DataLabel.Font.ColorIndex = 56
+                ser.Points(1).DataLabel.Font.Size = 36
+                ser.Points(1).Format.Fill.Transparency = 0
+                ser.Points(1).DataLabel.Position = xlLabelPositionBestFit
+                ser.Points(1).DataLabel.NumberFormat = "+##.##;-##.##"
+                'ser.Points(1).Format.Fill.OneColorGradient Style:=msoGradientDiagonalUp, Variant:=2, Degree:=0.45
+                
+                ser.Points(2).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                ser.Points(2).Format.Fill.Transparency = 0
+                ser.Points(2).Format.Line.Visible = True
+                ser.Points(2).Format.Line.ForeColor.RGB = RGB(255, 0, 0)
+                ser.Points(2).Format.Line.Weight = 5
+                ser.Points(2).DataLabel.Font.Size = 36
+                ser.Points(2).DataLabel.Font.ColorIndex = 10
+                ser.Points(2).DataLabel.NumberFormat = "##.##;##.##"
+                ser.Points(2).DataLabel.Position = xlLabelPositionBestFit
+                
+                ser.Points(3).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                ser.Points(3).Format.Line.Visible = False
+                ser.Points(3).DataLabel.Font.ColorIndex = 3
+                ser.Points(3).Format.Fill.Transparency = 0.8
+                ser.Points(3).DataLabel.Font.Size = 36
+                ser.Points(3).DataLabel.Position = xlLabelPositionBestFit
+                ser.Points(3).DataLabel.NumberFormat = "+##.##;-##.##"
+
+            
+            Next j
+                           
+        ElseIf (ActiveWorkbook.Worksheets("database").Range("E20").Value > 0 Or ActiveWorkbook.Worksheets("database").Range("E20").Value = 0) And (ActiveWorkbook.Worksheets("database").Range("E20").Value < ActiveWorkbook.Worksheets("database").Range("F20").Value Or ActiveWorkbook.Worksheets("database").Range("E20").Value = ActiveWorkbook.Worksheets("database").Range("F20").Value) Then
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).Values = "=database!$e$22:$g$22"
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).XValues = "=database!$e$23:$g$23"
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).DataLabels.ShowCategoryName = True
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.Rotation = 270
+               Set ser = ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1)
+               ' loops through all the points and sets the colors of the slices
+               For j = 1 To ser.Points.Count
+                    
+                    ser.Points(1).Format.Fill.ForeColor.RGB = RGB(255, 127, 0)
+                    ser.Points(1).Format.Fill.Transparency = 0
+                    ser.Points(1).Format.Line.Visible = False
+                    ser.Points(1).Format.Line.Weight = 5
+                    ser.Points(1).DataLabel.Font.Size = 36
+                    ser.Points(1).DataLabel.Font.ColorIndex = 56
+                    ser.Points(1).DataLabel.NumberFormat = "##.##;##.##"
+                    ser.Points(1).DataLabel.Position = xlLabelPositionBestFit
+                    
+                    ser.Points(2).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                    ser.Points(2).Format.Line.Visible = True
+                    ser.Points(2).Format.Line.ForeColor.RGB = RGB(255, 0, 0)
+                    ser.Points(2).DataLabel.Font.Size = 36
+                    ser.Points(2).DataLabel.Font.ColorIndex = 3
+                    ser.Points(2).Format.Fill.Transparency = 0
+                    ser.Points(2).Format.Line.Visible = True
+                    ser.Points(2).DataLabel.Position = xlLabelPositionBestFit
+                    ser.Points(2).DataLabel.NumberFormat = "+##.##;-##.##"
+    
+                    ser.Points(3).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                    ser.Points(3).Format.Fill.Transparency = 0.8
+                    ser.Points(3).DataLabel.Font.ColorIndex = 56
+                    ser.Points(3).Format.Line.Visible = False
+                    ser.Points(3).DataLabel.Position = xlLabelPositionBestFit
+                    ser.Points(3).DataLabel.Font.Size = 36
+                    ser.Points(3).DataLabel.NumberFormat = "##.##;##.##"
+               Next j
+        ElseIf ActiveWorkbook.Worksheets("database").Range("F20").Value < ActiveWorkbook.Worksheets("database").Range("E20").Value Then
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).Values = "=database!$e$24:$g$24"
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).XValues = "=database!$e$25:$g$25"
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1).DataLabels.ShowCategoryName = True
+               ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 5").Chart.Rotation = 270
+               Set ser = ActiveWorkbook.Worksheets("summary").ChartObjects("Chart 8").Chart.SeriesCollection(1)
+               ' loops through all the points and sets the colors of the slices
+               For j = 1 To ser.Points.Count
+                    
+                    ser.Points(1).Format.Fill.ForeColor.RGB = RGB(255, 127, 0)
+                    ser.Points(1).Format.Fill.Transparency = 0
+                    ser.Points(1).Format.Line.Visible = False
+                    ser.Points(1).Format.Line.Weight = 5
+                    ser.Points(1).DataLabel.Font.Size = 36
+                    ser.Points(1).DataLabel.Font.ColorIndex = 56
+                    ser.Points(1).DataLabel.NumberFormat = "##.##;##.##"
+                    ser.Points(1).DataLabel.Position = xlLabelPositionBestFit
+                    
+                    ser.Points(2).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                    ser.Points(2).Format.Line.Visible = True
+                    ser.Points(2).DataLabel.Font.Size = 36
+                    ser.Points(2).DataLabel.Font.ColorIndex = 10
+                    ser.Points(2).Format.Fill.Transparency = 0
+                    ser.Points(2).Format.Line.ForeColor.RGB = RGB(0, 127, 0)
+                    ser.Points(2).DataLabel.Position = xlLabelPositionBestFit
+                    ser.Points(2).DataLabel.NumberFormat = "+##.##;-##.##"
+    
+                    ser.Points(3).Format.Fill.ForeColor.RGB = RGB(255, 255, 255)
+                    ser.Points(3).Format.Fill.Transparency = 0.8
+                    ser.Points(3).DataLabel.Font.ColorIndex = 56
+                    ser.Points(3).Format.Line.Visible = False
+                    ser.Points(3).DataLabel.Position = xlLabelPositionBestFit
+                    ser.Points(3).DataLabel.Font.Size = 36
+                    ser.Points(3).DataLabel.NumberFormat = "##.##;##.##"
+               Next j
+       End If
+ End If
+
+
+Next cht
+End Sub
