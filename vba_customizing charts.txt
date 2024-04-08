@@ -15,7 +15,7 @@ End If
 End Sub
 
 ------------------------------------------------
-Sub AdjustVerticalAxis()  'Source fo the main part of the code: www.TheSpreadsheetGuru.com
+Sub AdjustVerticalAxis()  'Source of the main part of the code: www.TheSpreadsheetGuru.com
 'PURPOSE: Adjust Y-Axis according to Min/Max of Chart Data 
 
  
