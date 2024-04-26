@@ -1,0 +1,24 @@
+'works with files named not with english letters
+Sub MapInfo()
+
+         Dim rwb As Workbook
+         Dim mwb As Workbook
+         Dim lastrow As Long
+         Dim length As Long
+         Dim FSO As Object
+         Dim Folder As Object
+         Dim File As Object
+    
+         Set FSO = CreateObject("Scripting.FileSystemObject")
+         Set Folder = FSO.GetFolder("C:\xxxxxxxxxxx\xxxxxxxxxx\")
+        
+        
+        Set rwb = ThisWorkbook
+        lastrow = rwb.Worksheets("db").Cells(Rows.Count, 1).End(xlUp).Row
+        For Each File In Folder.Files
+        Set mwb = Workbooks.Open(fileName:=File, UpdateLinks:=0)
+
+
+
+
+

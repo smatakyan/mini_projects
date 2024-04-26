@@ -1,0 +1,79 @@
+' finds and maps info from a file with randomly changing row positions
+
+ElseIf InStr(Left(File, 76), "4thform") > 0 Then
+                
+                For i = 1 To mwb.Worksheets.Count
+                    If mwb.Worksheets(i).Name = rwb.Worksheets("helper").Cells(4, 12).Value Then
+                        ThisWorkbook.Activate
+                        rwb.Worksheets("db").Cells(lastrow + 1, 12).Value = mwb.Worksheets(i).Range("Q59:AC59").Cells(1, 1).Value
+                    ElseIf mwb.Worksheets(i).Name = rwb.Worksheets("helper").Cells(5, 12).Value Then
+                            ThisWorkbook.Activate
+                            rwb.Worksheets("db").Cells(lastrow + 1, 1).Value = Mid(mwb.Worksheets(i).Range("B5:N5").Cells(1, 1).Value, 4, 10)
+                            rwb.Worksheets("db").Cells(lastrow + 1, 4).Value = mwb.Worksheets(i).Range("M6:N6").Cells(1, 1).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 6).Value = mwb.Worksheets(i).Range("G19:G19").Cells(1, 1).Value
+                    ElseIf mwb.Worksheets(i).Name = rwb.Worksheets("helper").Cells(6, 12).Value Then
+                            ThisWorkbook.Activate
+                            rwb.Worksheets("db").Cells(lastrow + 1, 5).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(6, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 2).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(4, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 3).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(5, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 7).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(7, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 8).Value = rwb.Worksheets("helper").Cells(5, 3).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 9).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(8, 16).Value, mwb.Worksheets(i).Range("E:E"), 0) - 1)).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 11).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(10, 16).Value, mwb.Worksheets(i).Range("E:E"), 0) - 1)).Value
+    
+                            If IsEmpty(mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(15, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value) = False Then 'ADD
+                               rwb.Worksheets("db").Cells(lastrow + 1, 13).Value = mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(11, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value 'ADD
+                            Else
+                               rwb.Worksheets("db").Cells(lastrow + 1, 13).Value = ""   'ADD
+                            End If
+                            rwb.Worksheets("db").Cells(lastrow + 1, 14).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(12, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 15).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(13, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 16).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(14, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            If mwb.Worksheets(i).Range("E9:AH9").Cells(1, 1).Value = rwb.Worksheets("helper").Cells(9, 4).Value Then
+                            rwb.Worksheets("db").Cells(lastrow + 1, 17).Value = rwb.Worksheets("helper").Cells(8, 5).Value
+                            Else
+                            rwb.Worksheets("db").Cells(lastrow + 1, 17).Value = rwb.Worksheets("helper").Cells(10, 5).Value & " " & mwb.Worksheets(i).Range("E9:AH9").Cells(1, 1).Value
+                            End If
+                            rwb.Worksheets("db").Cells(lastrow + 1, 18).Value = mwb.Worksheets(i).Range("AG3:AG3").Cells(1, 1).Value
+                            If InStr(mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(15, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value, rwb.Worksheets("helper").Cells(5, 7).Value) > 0 Then
+                            rwb.Worksheets("db").Cells(lastrow + 1, 20).Value = rwb.Worksheets("helper").Cells(5, 7).Value
+                            ElseIf InStr(mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(15, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value, rwb.Worksheets("helper").Cells(7, 7).Value) > 0 Then
+                            rwb.Worksheets("db").Cells(lastrow + 1, 20).Value = mwb.Worksheets(i).Range("E112:AH112").Cells(1, 1).Value
+                            ElseIf InStr(mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(15, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value, rwb.Worksheets("helper").Cells(6, 7).Value) > 0 Then
+                            rwb.Worksheets("db").Cells(lastrow + 1, 20).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(15, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            rwb.Worksheets("db").Cells(lastrow + 1, 21).Value = mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(16, 16).Value, mwb.Worksheets(i).Range("B:B"), 0))).Value
+                            End If
+                            If IsEmpty(mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(17, 16).Value, mwb.Worksheets(i).Range("E:E"), 0) - 1))) = False Then
+                            rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(mwb.Worksheets(i).Range("E" & CStr(Application.Match(Worksheets("helper").Cells(17, 16).Value, mwb.Worksheets(i).Range("E:E"), 0) - 1)).Value)
+                            Else
+                                If InStr(rwb.Worksheets("db").Cells(lastrow + 1, 9).Value, rwb.Worksheets("helper").Cells(5, 8).Value) > 0 Then
+                                
+                                   If InStr(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value, rwb.Worksheets("helper").Cells(19, 16).Value) > 0 Then
+                                      rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(Mid(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value, 6, Len(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1))) - 6)) / 100 + 0.048
+                                   Else
+                                      rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value) + 0.7
+                                   End If
+                                      
+                                
+                                ElseIf InStr(rwb.Worksheets("db").Cells(lastrow + 1, 9).Value, rwb.Worksheets("helper").Cells(6, 8).Value) > 0 Then
+                                
+                                   If InStr(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value, rwb.Worksheets("helper").Cells(19, 16).Value) > 0 Then
+                                      rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(Mid(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value, 6, Len(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1))) - 6)) / 100 + 0.025
+                                   Else
+                                      rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value) + 0.6
+                                   End If
+                                   
+
+                                ElseIf InStr(rwb.Worksheets("db").Cells(lastrow + 1, 9).Value, rwb.Worksheets("helper").Cells(8, 8).Value) > 0 Then
+                                
+                                   If InStr(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value, rwb.Worksheets("helper").Cells(19, 16).Value) > 0 Then
+                                   
+                                      rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(Mid(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value, 6, Len(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1))) - 6)) / 100 + 0.8
+                                   Else
+                                      rwb.Worksheets("db").Cells(lastrow + 1, 10).Value = CDec(mwb.Worksheets(i).Range("T" & CStr(Application.Match(Worksheets("helper").Cells(18, 16).Value, mwb.Worksheets(i).Range("T:T"), 0) - 1)).Value) + 0.9
+                                   End If
+                                
+                                End If
+                            End If
+                    End If
+                Next i
