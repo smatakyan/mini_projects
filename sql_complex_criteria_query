@@ -8,7 +8,7 @@ SELECT
 	   ROW_NUMBER() OVER (PARTITION BY A.CONTRACT ORDER BY DT) HING,
 	   MAX(DT) OVER (PARTITION BY A.CONTRACT) AS DBDT
 FROM [LoansDebtOnDate] A
-LEFT JOIN ContractsAll B ON A.Contract = B.Contract
+LEFT JOIN Contracts B ON A.Contract = B.Contract
 WHERE B.OpenDate >=  <report_cohort,date,'2022-05-16'>
       AND <report_month_end,date,'2023-10-31'>   >= dt                                   
       AND DebtDay = 5),
@@ -39,7 +39,7 @@ SELECT DISTINCT
 	   MAX(debtday) OVER (PARTITION BY A.CONTRACT) AS debtday_Q,
 	   MAX(DT) OVER (PARTITION BY A.CONTRACT) AS DBDT
 FROM [LoansDebtOnDate] A
-LEFT JOIN ContractsAll B ON A.Contract = B.Contract
+LEFT JOIN Contracts B ON A.Contract = B.Contract
 WHERE B.OpenDate >=  <report_cohort,date,'2022-05-16'>
       and dt between <report_month_start,date,'2023-10-01'>  and <report_month_end,date,'2023-10-31'>
       and DebtDay>= 5
@@ -99,7 +99,7 @@ a.dt,
 b.source
 from RetailLoans A
 
-LEFT JOIN      [ContractsAll]       B ON A.Contract = B.Contract
+LEFT JOIN      [Contracts]       B ON A.Contract = B.Contract
 LEFT JOIN      [CustomersAll]       N ON B.IdCustomer = N.IdCustomer
 LEFT JOIN (select ContractLn,STRING_AGG(PldStateKind, ',') qq
            from [LoanToPledgeHist] 
@@ -107,11 +107,8 @@ LEFT JOIN (select ContractLn,STRING_AGG(PldStateKind, ',') qq
 LEFT JOIN     [LoansDebtOnDate]    M ON B.Contract = M.Contract and  a.dt = M.dt
 LEFT JOIN     [CustomersPersAttrs] D ON B.IdCustomer = D.IdCustomer
 LEFT JOIN     [LoanPattern]        F ON B.LoanPatternID = F.IdPATTERN
-LEFT JOIN     [LargeClients]       G ON N.IdCustomerLS = G.CLIENT
-LEFT JOIN     [FI_BBB]             H ON B.CONTRACTCODE = H.CONTRACT
 LEFT JOIN     [LoanDestinationPRD] I ON B.DestinationId = I.DESTINATION_ID
 LEFT JOIN     [PatternPRD]         J ON B.LoanPatternId = J.PATTERNID
-LEFT JOIN     [VGtoOthers]         K ON B.ContractCode = K.CONT
 LEFT JOIN       [RatesCB]            L ON B.IdCurrency   = L.IdCurrency and  B.OpenDate = L.rtdate
 LEFT JOIN RATES ON A.Contract = RATES.Contract
 LEFT JOIN LAST_DBT ON a.dt = LAST_DBT.DBDT AND a.Contract = LAST_DBT.Contract
