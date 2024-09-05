@@ -1,0 +1,287 @@
+
+WITH PAYMENT_BASE AS (
+SELECT DISTINCT
+       b.Contract,
+       b.contractid,
+	   lgd.dateperiod,
+	   case 
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') 
+			and B.ContractAmount*L.rate <=  20000000 and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then '<=20mln-Secured'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') 
+			and B.ContractAmount*L.rate <=  20000000 and (ww.qq not like '%,3,%' or ww.qq not like '3,%' or ww.qq not like '%,3' or ww.qq not like '3' or ww.qq not like '%17%' or ww.qq not like '%30%' or ww.qq is null) then '<=20mln-Unsecured'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') and B.ContractAmount*L.rate > 20000000  and    
+			b.EconomicSector = 7  then '>20mln-Trade'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') and B.ContractAmount*L.rate > 20000000  and    
+			b.EconomicSector = 3  then '>20mln-Manufacturing'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') and B.ContractAmount*L.rate > 20000000  and    
+			b.EconomicSector not in (3,7)  then '>20mln-Other'
+			when K.PROD is not null then K.Prod_tbl
+			when N.Custkind = 'retail_client' and I.DESTINATION_ID =  9 then 'CREDIT_LINE'
+			when I.DESTINATION_ID in(21,40,51) then 'SALARY'
+			when I.PRODG is not null and (ww.qq like '%,1,%' or ww.qq like '1,%' or ww.qq like '%,1' or ww.qq like '1') then I.PRODG
+			when I.PRODS is not null and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then I.PRODS
+			when I.PRODM is not null and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then I.PRODM
+			when I.PRODU_G is not null and (ww.qq like '%,9,%' or ww.qq like '9,%' or ww.qq like '%,9' or ww.qq like '9' or ww.qq like '%32%') then I.PRODU_G
+			when I.PRODU_WG is not null and ww.qq is null then I.PRODU_WG
+			when I.DESTINATION_ID =  9 and J.PATTERNS is not null then J.PATTERNS
+			when I.DESTINATION_ID =  9 and J.PATTERNG is not null then J.PATTERNG
+			when I.DESTINATION_ID =  9 and J.PATTERNU_G is not null and (ww.qq like '%,9,%' or ww.qq like '9,%' or ww.qq like '%,9' or ww.qq like '9' or ww.qq like '%32%') then J.PATTERNU_G
+			when I.DESTINATION_ID =  9 and J.PATTERNU_WG is not null and ww.qq is null then J.PATTERNU_WG
+			ELSE I.prod  
+      end as PROD,
+	  isnull([EffComRate],B.FirstIntRate) INTRATE,
+	  PAY.VALUEDATE payment_period,
+	  datediff("m",lgd.dateperiod,eomonth(PAY.[ValueDate],0)) past_period,
+	  isnull(PAY.TOTAL_PAYMENT,0) TOTAL_PAYMENT,
+	  --isnull([MainLoanPayment],0)+isnull([Interest],0)+isnull([Fees],0)+isnull([ServiceComission],0) as payment,
+	  ISNULL(((isnull(MainBalance,0) + isnull(WoffMainBalance,0) + isnull(Percents,0) + isnull(WOffPercents,0) + isnull(Fines,0) + isnull(WOffFines,0) + isnull(Amortisation,0)) * currencyRate),LACK.DEBT_ON_DATE) debt_Total
+  
+FROM my_custom_contarcts lgd 
+LEFT JOIN contracts_db b on lgd.Contract = b.contractcode
+LEFT JOIN retail_portfolio on b.contractid = c.contractid and lgd.dateperiod=c.dt
+LEFT JOIN [CustomersAll]       N ON B.IdCustomer = N.IdCustomer
+LEFT JOIN (select  LGD.CONTRACT,
+				   LGD.DATEPERIOD,
+				   B.contractid,
+				   GRAV.contractidLn,
+				   STRING_AGG(GRAV.PldStateKind, ',') qq
+			FROM  my_custom_contarcts LGD
+			LEFT JOIN contracts_db b on lgd.Contract = b.contractcode
+			LEFT JOIN  [LoanToPledgeHist] GRAV ON B.contractid=GRAV.contractidLn 
+			WHERE GRAV.DtFrom<=lgd.dateperiod AND  GRAV.DtTO>=lgd.dateperiod
+			group by LGD.CONTRACT,LGD.DATEPERIOD,B.contractid,GRAV.contractidLn) ww  ON b.contractid = ww.contractidLn
+LEFT JOIN debt_tbl   M ON B.contractid = M.contractid and  C.dt = GETDATE()
+LEFT JOIN [CustomersPersAttrs] D ON B.IdCustomer = D.IdCustomer
+LEFT JOIN [LoanPattern]        F ON B.LoanPatternID = F.IdPATTERN
+LEFT JOIN     [LargeClients]       G ON N.IdCustomerLS = G.CLIENT
+LEFT JOIN     spec_table             H ON B.CONTRACTCODE = H.CONTRACT
+LEFT JOIN     destin I ON B.DestinationId = I.DESTINATION_ID
+LEFT JOIN     [PatternPRD]         J ON B.LoanPatternId = J.PATTERNID
+LEFT JOIN     gg_table         K ON B.ContractCode = K.CONT
+LEFT JOIN       [core].[dbo].[RatesCB]            L ON B.IdCurrency   = L.IdCurrency and  B.OpenDate = L.rtdate 
+LEFT JOIN [DebtStatesLib]     DS ON C.DebtorState = DS.DebtStateID
+LEFT JOIN (SELECT * FROM ColumnDecodeValues WHERE ColumnDecodeID = 16) Z ON B.ContrType = Z.IntCode
+LEFT JOIN       [core].[dbo].[RatesCB]            rates ON b.IdCurrency   = rates.IdCurrency and  lgd.dateperiod = rates.rtdate
+LEFT JOIN (
+				SELECT CONTRACTcode as contract,eomonth(ValueDate,0) as valuedate,sum(isnull([MainLoanPayment],0)+isnull([Interest],0)+isnull([Fees],0)+isnull([ServiceComission],0)) as TOTAL_PAYMENT
+				FROM my_custom_contarcts lgd 
+				LEFT JOIN contracts_db b on lgd.contract = b.ContractCode
+				LEFT JOIN [LoanRepayment] a on b.contractid=a.contractid
+				where [ValueDate] > lgd.dateperiod
+				group by b.CONTRACTcode ,eomonth(a.ValueDate,0) 
+				UNION
+				SELECT CONTRACT,PAY_DATE AS VALUEDATE, PAYMENT AS TOTAL_PAYMENT
+				FROM  [retail_lgd_lacking] ) PAY on LGD.CONTRACT = PAY.CONTRACT
+LEFT JOIN [retail_lgd_lacking] LACK ON LGD.contract = LACK.CONTRACT
+where n.Custkind='retail_client'
+and lgd.dateperiod='2023-08-31')
+
+
+,PAYMENT_BASE_2 as (
+SELECT ContractCode,
+       contractid,
+	   dateperiod,
+	   PROD,
+	   INTRATE,
+	   payment_period,
+	   past_period,
+	   MAX(past_period) OVER (PARTITION BY CONTRACTCODE) AS MAX_PERIOD,
+	   MIN(past_period) OVER (PARTITION BY CONTRACTCODE) AS MIN_PERIOD,
+	   TOTAL_PAYMENT,
+	   SUM(TOTAL_PAYMENT) OVER(PARTITION BY CONTRACTCODE ORDER BY past_period ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS RunningTotal,
+       debt_Total,
+	   sum(TOTAL_PAYMENT) OVER (PARTITION BY CONTRACTCODE) AS TOTAL_RECOVERY
+
+FROM   PAYMENT_BASE)
+
+,PAYMENT_BASE_3 as (
+SELECT ContractCode,
+       contractid,
+	   dateperiod,
+	   PROD,
+	   INTRATE,
+	   payment_period,
+	   past_period,
+	   MAX_PERIOD,
+	   MIN_PERIOD,
+	   TOTAL_PAYMENT,
+	   RunningTotal,
+	   RunningTotal-DEBT_TOTAL  MY_INFO,
+	   CASE  
+		   WHEN RunningTotal-DEBT_TOTAL>0 AND past_period=MIN_PERIOD THEN DEBT_TOTAL
+		   WHEN LEAD(RunningTotal-DEBT_TOTAL) OVER (PARTITION BY CONTRACTCODE ORDER BY PAST_PERIOD)>0 THEN -1*(RunningTotal-DEBT_TOTAL)
+		   ELSE 0
+	   END AS TOTAL_PAYMENT_ADJUST,
+	   	   CASE  
+		   WHEN RunningTotal-DEBT_TOTAL>0 AND past_period=MIN_PERIOD THEN DEBT_TOTAL
+		   ELSE 0
+	   END AS TOTAL_PAYMENT_LUMP,
+       debt_Total ,
+	   TOTAL_RECOVERY,
+	   TOTAL_RECOVERY-debt_Total AS DIFF
+
+FROM   PAYMENT_BASE_2)
+
+
+,PAYMENT_BASE_4 as (
+select ContractCode,
+       contractid,
+	   dateperiod,
+	   PROD,
+	   INTRATE,
+	   payment_period,
+	   past_period,
+	   MAX_PERIOD,
+	   MIN_PERIOD,
+	   TOTAL_PAYMENT,
+	   RunningTotal,
+	   RunningTotal-DEBT_TOTAL  MY_INFO,
+	   TOTAL_PAYMENT_ADJUST,
+	   CASE WHEN LAG(TOTAL_PAYMENT_ADJUST,1,0) OVER (PARTITION BY CONTRACTCODE ORDER BY PAST_PERIOD)>0 THEN  LAG(TOTAL_PAYMENT_ADJUST,1,0) OVER (PARTITION BY CONTRACTCODE ORDER BY PAST_PERIOD)
+	   ELSE 0
+	   END AS SHIFTED_ADJUST,
+         debt_Total,
+	   TOTAL_RECOVERY,
+	   TOTAL_RECOVERY-debt_Total AS DIFF
+FROM PAYMENT_BASE_3)
+
+,PAYMENT_BASE_5 as (
+select     ContractCode,
+           contractid,
+	   dateperiod,
+	   PROD,
+	   INTRATE,
+	   payment_period,
+	   past_period,
+	   MAX_PERIOD,
+	   MIN_PERIOD,
+	   TOTAL_PAYMENT,
+	   RunningTotal,
+	   RunningTotal-DEBT_TOTAL  MY_INFO,
+	   TOTAL_PAYMENT_ADJUST,
+	   SHIFTED_ADJUST,
+	   case  when RunningTotal > debt_Total  and past_period=MIN_PERIOD then debt_Total
+	         when SHIFTED_ADJUST = 0 then TOTAL_PAYMENT 
+	   else SHIFTED_ADJUST end as correct_payment,
+           debt_Total,
+	   TOTAL_RECOVERY,
+	   format(TOTAL_RECOVERY-debt_Total,'N0') AS DIFF
+FROM PAYMENT_BASE_4)
+
+
+,PAYMENT_BASE_6 as (
+select     ContractCode,
+           contractid,
+	   dateperiod,
+	   PROD,
+	   INTRATE,
+	   payment_period,
+	   past_period,
+	   MAX_PERIOD,
+	   MIN_PERIOD,
+	   TOTAL_PAYMENT,
+	   RunningTotal,
+	   RunningTotal-DEBT_TOTAL  MY_INFO,
+	   TOTAL_PAYMENT_ADJUST,
+	   SHIFTED_ADJUST,
+	   correct_payment,
+	   --case when RunningTotal > debt_Total and past_period=MIN_PERIOD then 'delete_nexts' else 'OK' END AS CRITELI,
+	   SUM(correct_payment) OVER(PARTITION BY CONTRACTCODE ORDER BY past_period ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS RunningTotal_final,
+           debt_Total,
+	   TOTAL_RECOVERY,
+	   format(TOTAL_RECOVERY-debt_Total,'N0') AS DIFF,
+	   case when SHIFTED_ADJUST>0 then SUM(correct_payment) OVER(PARTITION BY CONTRACTCODE ORDER BY past_period ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)-debt_Total 
+	   else 0
+	   end as final_diff
+from PAYMENT_BASE_5)
+
+,exclude_contracts as (
+select distinct
+contractcode
+from PAYMENT_BASE_6
+where RunningTotal_final > debt_Total
+)
+
+,FINAL AS (
+select PAYMENT_BASE_6.*, 
+       case when (contractcode in (select * from exclude_contracts) and RunningTotal_final > debt_Total) then 'exclude' else 'OK' END AS FINAL_CRIT
+FROM PAYMENT_BASE_6)
+
+,work1 as (
+SELECT     ContractCode,
+           contractid,
+	   DATEPERIOD,
+	   PROD,
+	   INTRATE,
+	   past_period,
+	   correct_payment,
+	   debt_Total,
+	   INTRATE*debt_Total as weighted
+
+FROM FINAL
+WHERE FINAL_CRIT = 'OK')
+
+,work2 as (
+select          distinct 
+                contractcode,--new because of duplicate
+                dateperiod,
+	        prod,
+	        debt_total,
+		weighted
+from work1)
+
+,work3 as (
+select          distinct 
+                dateperiod,
+		prod,
+		sum(debt_total) over (PARTITION BY dateperiod,prod) as total_balance,
+		(sum(weighted) over (PARTITION BY dateperiod,prod)/sum(debt_total) over (PARTITION BY dateperiod,prod))/100 as effrate,
+		(power((1+(sum(weighted) over (PARTITION BY dateperiod,prod)/100/sum(debt_total) over (PARTITION BY dateperiod,prod))),(cast(1 as float)/cast(12 as float)))-1)  as discount_rate
+				
+from work2)
+
+,work4 as (
+          select distinct
+                 prod,
+                 dateperiod,
+                 past_period,
+                 sum(correct_payment) over (partition by prod,dateperiod,past_period) total_of_past_period
+          from work1
+          WHERE EOMONTH(dateperiod,PAST_PERIOD) <= '2024-06-30' and past_period is not null
+          order by prod,past_period)
+
+,work5 as (
+
+          select  distinct work3.*,past_period,total_of_past_period,
+                  CASE WHEN EOMONTH(work3.dateperiod,PAST_PERIOD)>'2024-06-30' THEN NULL 
+                   ELSE isnull(work4.total_of_past_period*(cast(1 as float)/power((1+discount_rate),past_period)),0)/total_balance 
+                  END AS vals
+          from work3
+          inner join work4 on work3.dateperiod=work4.dateperiod and work3.prod=work4.prod
+          WHERE past_period IS NOT NULL)
+
+,WORK6 AS (
+        select dateperiod,
+               prod,
+               total_balance,
+               effrate,
+               discount_rate,
+               past_period,
+               total_of_past_period,
+               vals*100 VALS,
+               IIF(vals>1,1,vals) VALS_CORR,
+               IIF(vals>1,1,vals)*total_balance WEIGHTED_VALS
+        from work5
+        where dateperiod between '2019-06-30' and '2024-05-30' and vals is not null and past_period is not null)
+        and dateperiod = '2022-01-31)
+
+,work7 as (
+        SELECT DISTINCT 
+               PROD,PAST_PERIOD, (SUM(WEIGHTED_VALS) OVER (PARTITION BY PROD,PAST_PERIOD)/SUM(TOTAL_BALANCE) OVER (PARTITION BY PROD,PAST_PERIOD))*100 RECOVERY_RATE
+         FROM WORK6)
+
+SELECT PROD,PAST_PERIOD,recovery_rate,
+       SUM(recovery_rate) OVER(PARTITION BY prod ORDER BY past_period ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_recovery
+from work7
+order by PROD,past_period
+
