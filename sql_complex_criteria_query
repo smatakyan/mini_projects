@@ -7,7 +7,7 @@ SELECT
 	   DebtDay,
 	   ROW_NUMBER() OVER (PARTITION BY A.CONTRACT ORDER BY DT) HING,
 	   MAX(DT) OVER (PARTITION BY A.CONTRACT) AS DBDT
-FROM [LoansDebtOnDate] A
+FROM [Debt] A
 LEFT JOIN Contracts B ON A.Contract = B.Contract
 WHERE B.OpenDate >=  <report_cohort,date,'2022-05-16'>
       AND <report_month_end,date,'2023-10-31'>   >= dt                                   
@@ -69,13 +69,13 @@ B.Contract,
 #meetcrit.MAX_TIMES,
 B.DESTINATION,
 F.NameA,
-B.LOANPATTERNID,   
+B.LOANPAT,   
 B.OPENDATE,
-B.MaturityDate,
-B.CloseDate,
+B.Maturity,
+B.CloseD,
 L.CURRENCY, 
 a.IntRate,
-B.CurrentIntRate,
+B.CIntRate,
 isnull([EffRate],'')       [EffRate],
 A.LimitSet*L.rate as limit,
 B.CONTAMOUNT,
@@ -84,12 +84,12 @@ CASE
    WHEN A.LimitSet is not null THEN A.LimitSet*L.rate
    ELSE B.ContAmount*L.rate
 END AS contamount_Eqv,
-(isnull(MainBalance,0) + isnull(WoffMainBalance,0))                Balance,
+(isnull(MainBalance,0) + isnull(WoffBalance,0))                Balance,
 RATES.currencyRate BAL_CURRATE,
-(isnull(MainBalance,0) + isnull(WoffMainBalance,0)) * RATES.currencyRate Bal_Eqv,
+(isnull(MainBalance,0) + isnull(WoffBalance,0)) * RATES.currencyRate Bal_Eqv,
 FIRSTDEBT.FIRST_DEBT * RATES.currencyRate AS  FIRST_DEBT_EQVL,
-(isnull(a.MainBalanceDebt,0) + isnull(a.PercentsDebt,0)+isnull(a.FINES,0)) * RATES.currencyRate TOTAL_DEBT,
-isnull(a.MainBalanceDebt,0)*RATES.currencyRate BAL_DEBT,
+(isnull(a.MainDebt,0) + isnull(a.PercentsDebt,0)+isnull(a.FINES,0)) * RATES.currencyRate TOTAL_DEBT,
+isnull(a.MainDebt,0)*RATES.currencyRate BAL_DEBT,
 isnull(a.PercentsDebt,0)*RATES.currencyRate PERC_DEBT,
 isnull(a.FINES,0)*RATES.currencyRate FINES,
 A.RISK,
@@ -102,14 +102,14 @@ from RetailLoans A
 LEFT JOIN      [Contracts]       B ON A.Contract = B.Contract
 LEFT JOIN      [CustomersAll]       N ON B.IdCustomer = N.IdCustomer
 LEFT JOIN (select ContractLn,STRING_AGG(PldStateKind, ',') qq
-           from [LoanToPledgeHist] 
+           from [LoanToPledge] 
            group by ContractLn) ww  ON b.Contract = ww.ContractLn
-LEFT JOIN     [LoansDebtOnDate]    M ON B.Contract = M.Contract and  a.dt = M.dt
-LEFT JOIN     [CustomersPersAttrs] D ON B.IdCustomer = D.IdCustomer
+LEFT JOIN     [Debt]    M ON B.Contract = M.Contract and  a.dt = M.dt
+LEFT JOIN     [Customers] D ON B.IdCustomer = D.IdCustomer
 LEFT JOIN     [LoanPattern]        F ON B.LoanPatternID = F.IdPATTERN
 LEFT JOIN     [LoanDestinationPRD] I ON B.DestinationId = I.DESTINATION_ID
-LEFT JOIN     [PatternPRD]         J ON B.LoanPatternId = J.PATTERNID
-LEFT JOIN       [RatesCB]            L ON B.IdCurrency   = L.IdCurrency and  B.OpenDate = L.rtdate
+LEFT JOIN     [Pattern]         J ON B.LoanPatternId = J.PATTERNID
+LEFT JOIN       [Rates]            L ON B.IdCurrency   = L.IdCurrency and  B.OpenDate = L.rtdate
 LEFT JOIN RATES ON A.Contract = RATES.Contract
 LEFT JOIN LAST_DBT ON a.dt = LAST_DBT.DBDT AND a.Contract = LAST_DBT.Contract
 LEFT JOIN #meetcrit ON A.Contract = #meetcrit.Contract
