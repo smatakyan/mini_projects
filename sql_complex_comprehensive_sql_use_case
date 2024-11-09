@@ -2,71 +2,71 @@
 WITH PAYMENT_BASE AS (
 SELECT DISTINCT
        b.Contract,
-       b.contractid,
+       b.contractsmth,
 	   lgd.dateperiod,
 	   case 
-			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') 
-			and B.ContractAmount*L.rate <=  20000000 and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then '<=20mln-Secured'
-			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') 
-			and B.ContractAmount*L.rate <=  20000000 and (ww.qq not like '%,3,%' or ww.qq not like '3,%' or ww.qq not like '%,3' or ww.qq not like '3' or ww.qq not like '%17%' or ww.qq not like '%30%' or ww.qq is null) then '<=20mln-Unsecured'
-			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') and B.ContractAmount*L.rate > 20000000  and    
-			b.EconomicSector = 7  then '>20mln-Trade'
-			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') and B.ContractAmount*L.rate > 20000000  and    
-			b.EconomicSector = 3  then '>20mln-Manufacturing'
-			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'Financial Institution' or N.Custkind = 'Bank') and B.ContractAmount*L.rate > 20000000  and    
-			b.EconomicSector not in (3,7)  then '>20mln-Other'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'financial' or N.Custkind = 'Bank') 
+			and B.ctramnt*L.rate <=  560000 and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then 'prodname1'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'financial' or N.Custkind = 'Bank') 
+			and B.ctramnt*L.rate <=  560000 and (ww.qq not like '%,3,%' or ww.qq not like '3,%' or ww.qq not like '%,3' or ww.qq not like '3' or ww.qq not like '%17%' or ww.qq not like '%30%' or ww.qq is null) then 'prodname2'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'financial' or N.Custkind = 'Bank') and B.ctramnt*L.rate > 560000  and    
+			b.EconomicSector = 7  then 'trade'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'financial' or N.Custkind = 'Bank') and B.ctramnt*L.rate > 560000  and    
+			b.EconomicSector = 3  then 'manufact'
+			when (N.Custkind = 'Sole Proprietor' or N.Custkind = 'Legal Entity' or N.Custkind = 'financial' or N.Custkind = 'Bank') and B.ctramnt*L.rate > 560000  and    
+			b.EconomicSector not in (3,7)  then 'other'
 			when K.PROD is not null then K.Prod_tbl
-			when N.Custkind = 'retail_client' and I.DESTINATION_ID =  9 then 'CREDIT_LINE'
-			when I.DESTINATION_ID in(21,40,51) then 'SALARY'
-			when I.PRODG is not null and (ww.qq like '%,1,%' or ww.qq like '1,%' or ww.qq like '%,1' or ww.qq like '1') then I.PRODG
-			when I.PRODS is not null and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then I.PRODS
-			when I.PRODM is not null and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then I.PRODM
-			when I.PRODU_G is not null and (ww.qq like '%,9,%' or ww.qq like '9,%' or ww.qq like '%,9' or ww.qq like '9' or ww.qq like '%32%') then I.PRODU_G
-			when I.PRODU_WG is not null and ww.qq is null then I.PRODU_WG
-			when I.DESTINATION_ID =  9 and J.PATTERNS is not null then J.PATTERNS
-			when I.DESTINATION_ID =  9 and J.PATTERNG is not null then J.PATTERNG
-			when I.DESTINATION_ID =  9 and J.PATTERNU_G is not null and (ww.qq like '%,9,%' or ww.qq like '9,%' or ww.qq like '%,9' or ww.qq like '9' or ww.qq like '%32%') then J.PATTERNU_G
-			when I.DESTINATION_ID =  9 and J.PATTERNU_WG is not null and ww.qq is null then J.PATTERNU_WG
+			when N.Custkind = 'retail_client' and I.destin =  566 then 'CREDIT_LINE'
+			when I.destin in(22,44,55) then 'SALARY'
+			when I.PRODG is not null and (ww.qq like '%,1,%' or ww.qq like '1,%' or ww.qq like '%,1' or ww.qq like '1') then I.PROD1
+			when I.PRODS is not null and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then I.PROD2
+			when I.PRODM is not null and (ww.qq like '%,3,%' or ww.qq like '3,%' or ww.qq like '%,3' or ww.qq like '3' or ww.qq like '%17%' or ww.qq like '%30%') then I.PROD3
+			when I.PRODU_G is not null and (ww.qq like '%,9,%' or ww.qq like '9,%' or ww.qq like '%,9' or ww.qq like '9' or ww.qq like '%32%') then I.PROD4
+			when I.PRODU_WG is not null and ww.qq is null then I.PRODU6
+			when I.destin =  55 and J.PATTERNS is not null then J.PATTERN2
+			when I.destin =  55 and J.PATTERNG is not null then J.PATTERN3
+			when I.destin =  55 and J.PATTERNU_G is not null and (ww.qq like '%,9,%' or ww.qq like '9,%' or ww.qq like '%,9' or ww.qq like '9' or ww.qq like '%32%') then J.PATTERNU_1
+			when I.destin =  55 and J.PATTERNU_WG is not null and ww.qq is null then J.PATTERNU_4
 			ELSE I.prod  
       end as PROD,
 	  isnull([EffComRate],B.FirstIntRate) INTRATE,
 	  PAY.VALUEDATE payment_period,
 	  datediff("m",lgd.dateperiod,eomonth(PAY.[ValueDate],0)) past_period,
 	  isnull(PAY.TOTAL_PAYMENT,0) TOTAL_PAYMENT,
-	  --isnull([MainLoanPayment],0)+isnull([Interest],0)+isnull([Fees],0)+isnull([ServiceComission],0) as payment,
-	  ISNULL(((isnull(MainBalance,0) + isnull(WoffMainBalance,0) + isnull(Percents,0) + isnull(WOffPercents,0) + isnull(Fines,0) + isnull(WOffFines,0) + isnull(Amortisation,0)) * currencyRate),LACK.DEBT_ON_DATE) debt_Total
+	  --isnull([Main],0)+isnull([Interest],0)+isnull([Fees],0)+isnull([Comission],0) as payment,
+	  ISNULL(((isnull(Maine,0) + isnull(Woff,0) + isnull(Percent,0) + isnull(WOffP,0) + isnull(Fines,0) + isnull(WOffF,0) + isnull(Amor,0)) * currencyRate),LACK.DEBT_ON_DATE) debt_Total
   
 FROM my_custom_contarcts lgd 
 LEFT JOIN contracts_db b on lgd.Contract = b.contractcode
-LEFT JOIN retail_portfolio on b.contractid = c.contractid and lgd.dateperiod=c.dt
-LEFT JOIN [CustomersAll]       N ON B.IdCustomer = N.IdCustomer
+LEFT JOIN retail_portfolio on b.contractsmth = c.contractsmth and lgd.dateperiod=c.dt
+LEFT JOIN [Customer]       N ON B.smthCustomer = N.smthCustomer
 LEFT JOIN (select  LGD.CONTRACT,
 				   LGD.DATEPERIOD,
-				   B.contractid,
-				   GRAV.contractidLn,
+				   B.contractsmth,
+				   GRAV.contractsmthLn,
 				   STRING_AGG(GRAV.PldStateKind, ',') qq
 			FROM  my_custom_contarcts LGD
 			LEFT JOIN contracts_db b on lgd.Contract = b.contractcode
-			LEFT JOIN  [LoanToPledgeHist] GRAV ON B.contractid=GRAV.contractidLn 
+			LEFT JOIN  [LoanToPld] GRAV ON B.contractsmth=GRAV.contractsmthLn 
 			WHERE GRAV.DtFrom<=lgd.dateperiod AND  GRAV.DtTO>=lgd.dateperiod
-			group by LGD.CONTRACT,LGD.DATEPERIOD,B.contractid,GRAV.contractidLn) ww  ON b.contractid = ww.contractidLn
-LEFT JOIN debt_tbl   M ON B.contractid = M.contractid and  C.dt = GETDATE()
-LEFT JOIN [CustomersPersAttrs] D ON B.IdCustomer = D.IdCustomer
-LEFT JOIN [LoanPattern]        F ON B.LoanPatternID = F.IdPATTERN
-LEFT JOIN     [LargeClients]       G ON N.IdCustomerLS = G.CLIENT
+			group by LGD.CONTRACT,LGD.DATEPERIOD,B.contractsmth,GRAV.contractsmthLn) ww  ON b.contractsmth = ww.contractsmthLn
+LEFT JOIN debt_tbl   M ON B.contractsmth = M.contractsmth and  C.dt = GETDATE()
+LEFT JOIN [CustomersPers] D ON B.smthCustomer = D.smthCustomer
+LEFT JOIN [LoanPattern]        F ON B.Loanpattid = F.smthPATTERN
+LEFT JOIN     [LargeClients]       G ON N.smthCustomerLS = G.CLIENT
 LEFT JOIN     spec_table             H ON B.CONTRACTCODE = H.CONTRACT
-LEFT JOIN     destin I ON B.DestinationId = I.DESTINATION_ID
-LEFT JOIN     [PatternPRD]         J ON B.LoanPatternId = J.PATTERNID
+LEFT JOIN     destin I ON B.Destinationsmth = I.destin
+LEFT JOIN     [PatternPRD]         J ON B.Loanpattid = J.pattid
 LEFT JOIN     gg_table         K ON B.ContractCode = K.CONT
-LEFT JOIN       [core].[dbo].[RatesCB]            L ON B.IdCurrency   = L.IdCurrency and  B.OpenDate = L.rtdate 
-LEFT JOIN [DebtStatesLib]     DS ON C.DebtorState = DS.DebtStateID
-LEFT JOIN (SELECT * FROM ColumnDecodeValues WHERE ColumnDecodeID = 16) Z ON B.ContrType = Z.IntCode
-LEFT JOIN       [core].[dbo].[RatesCB]            rates ON b.IdCurrency   = rates.IdCurrency and  lgd.dateperiod = rates.rtdate
+LEFT JOIN       [core].[dbo].[RatesCB]            L ON B.smthCurrency   = L.smthCurrency and  B.OpenDate = L.rtdate 
+LEFT JOIN [DebtStatesLib]     DS ON C.DebtorState = DS.DebtStatesmth
+LEFT JOIN (SELECT * FROM ColumnDecode WHERE ColumnDecodesmth = 16) Z ON B.ContrType = Z.IntCode
+LEFT JOIN       [core].[dbo].[RatesCB]            rates ON b.smthCurrency   = rates.smthCurrency and  lgd.dateperiod = rates.rtdate
 LEFT JOIN (
-				SELECT CONTRACTcode as contract,eomonth(ValueDate,0) as valuedate,sum(isnull([MainLoanPayment],0)+isnull([Interest],0)+isnull([Fees],0)+isnull([ServiceComission],0)) as TOTAL_PAYMENT
+				SELECT CONTRACTcode as contract,eomonth(ValueDate,0) as valuedate,sum(isnull([Main],0)+isnull([Interest],0)+isnull([Fees],0)+isnull([Comission],0)) as TOTAL_PAYMENT
 				FROM my_custom_contarcts lgd 
 				LEFT JOIN contracts_db b on lgd.contract = b.ContractCode
-				LEFT JOIN [LoanRepayment] a on b.contractid=a.contractid
+				LEFT JOIN [LoanRepayment] a on b.contractsmth=a.contractsmth
 				where [ValueDate] > lgd.dateperiod
 				group by b.CONTRACTcode ,eomonth(a.ValueDate,0) 
 				UNION
@@ -79,7 +79,7 @@ and lgd.dateperiod='2023-08-31')
 
 ,PAYMENT_BASE_2 as (
 SELECT ContractCode,
-       contractid,
+       contractsmth,
 	   dateperiod,
 	   PROD,
 	   INTRATE,
@@ -96,7 +96,7 @@ FROM   PAYMENT_BASE)
 
 ,PAYMENT_BASE_3 as (
 SELECT ContractCode,
-       contractid,
+       contractsmth,
 	   dateperiod,
 	   PROD,
 	   INTRATE,
@@ -125,7 +125,7 @@ FROM   PAYMENT_BASE_2)
 
 ,PAYMENT_BASE_4 as (
 select ContractCode,
-       contractid,
+       contractsmth,
 	   dateperiod,
 	   PROD,
 	   INTRATE,
@@ -147,7 +147,7 @@ FROM PAYMENT_BASE_3)
 
 ,PAYMENT_BASE_5 as (
 select     ContractCode,
-           contractid,
+           contractsmth,
 	   dateperiod,
 	   PROD,
 	   INTRATE,
@@ -171,7 +171,7 @@ FROM PAYMENT_BASE_4)
 
 ,PAYMENT_BASE_6 as (
 select     ContractCode,
-           contractid,
+           contractsmth,
 	   dateperiod,
 	   PROD,
 	   INTRATE,
@@ -209,7 +209,7 @@ FROM PAYMENT_BASE_6)
 
 ,work1 as (
 SELECT     ContractCode,
-           contractid,
+           contractsmth,
 	   DATEPERIOD,
 	   PROD,
 	   INTRATE,
